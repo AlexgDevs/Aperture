@@ -5,7 +5,6 @@ from . import (
 
 class RegisterUserModel(BaseModel):
     name: str
-    email: str
     password: str
 
 

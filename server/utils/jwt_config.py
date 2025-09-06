@@ -36,7 +36,7 @@ async def create_access_token(user_data: dict) -> str:
     exp = datetime.now(timezone.utc) + timedelta(ACCESS_EXPIRE)
     return jwt.encode(
         {
-            'sub': user_data.get('user_id'),
+            'sub': user_data.get('id'),
             'exp': exp,
             'user_data': user_data,
             'type': 'access'
@@ -50,7 +50,7 @@ async def create_refresh_token(user_data: dict) -> str:
     exp = datetime.now(timezone.utc) + timedelta(REFRESH_EXPIRE)
     return jwt.encode(
         {
-            'sub': user_data.get('user_id'),
+            'sub': user_data.get('id'),
             'exp': exp,
             'user_data': user_data,
             'type': 'refresh'

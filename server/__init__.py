@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+from .db import db_manager
+
 from .routers import (
     link_app,
     auth_app
