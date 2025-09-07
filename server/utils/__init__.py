@@ -18,4 +18,5 @@ from .jwt_config import (
     create_refresh_token,
     refresh_access_token,
     custom_set_cookie,
+    auth_required
 )

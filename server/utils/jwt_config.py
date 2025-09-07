@@ -41,7 +41,7 @@ async def create_access_token(user_data: dict) -> str:
     exp = datetime.now(timezone.utc) + timedelta(hours=int(ACCESS_EXPIRE))
     return jwt.encode(
         {
-            'sub': user_data.get('id'),
+            'sub': str(user_data.get('id')),
             'exp': exp,
             'user_data': user_data,
             'type': 'access'
@@ -55,7 +55,7 @@ async def create_refresh_token(user_data: dict) -> str:
     exp = datetime.now(timezone.utc) + timedelta(days=int(REFRESH_EXPIRE))
     return jwt.encode(
         {
-            'sub': user_data.get('id'),
+            'sub': str(user_data.get('id')),
             'exp': exp,
             'user_data': user_data,
             'type': 'refresh'
@@ -103,7 +103,7 @@ async def custom_set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=True,
+        secure=False,
         samesite="lax",
         max_age=3600,
         path="/",
@@ -113,10 +113,41 @@ async def custom_set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True,
+        secure=False,
         samesite="lax",
         max_age=604800,
-        path='/auth/refresh'
+        path='/'
     )
 
 
+async def get_current_user(request: Request):
+    try:
+        token = request.cookies.get("access_token")
+        if not token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated"
+            )
+        
+        payload = jwt.decode(
+            token,
+            JWT_SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+        
+        if payload.get('type') != 'access':
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type"
+            )
+        
+        return payload.get('user_data')
+    
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+
+async def auth_required(request: Request):
+    return await get_current_user(request)

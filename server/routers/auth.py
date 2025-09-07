@@ -19,6 +19,7 @@ from ..utils import (
     create_access_token,
     refresh_access_token,
     custom_set_cookie,
+    auth_required
 )
 
 from ..db import (
@@ -122,6 +123,36 @@ async def login(
 @auth_app.post('/refresh',
             summary='refresh access token',
             description='enpoind for refreshing access token by refresh')
-async def refresh(response: Response):
-    token = response.get('refresh_token')
-    return await refresh_access_token(token)
+async def refresh(requset: Request, response: Response):
+    token = requset.cookies.get('refresh_token')
+    new_access_token = await refresh_access_token(token)
+    response.set_cookie(
+        key="access_token",
+        value=new_access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=3600,
+        path="/",
+    )
+
+    return {'tokens': {
+        'access': new_access_token
+    }}
+
+
+@auth_app.delete('/logout',
+                summary='logout user',
+                description='endpoint for clearing authentication cookies')
+async def logout(response: Response):
+    response.delete_cookie(
+        key="access_token",
+        path="/"
+    )
+    
+    response.delete_cookie(
+        key="refresh_token",
+        path="/"
+    )
+
+    return {'status': 'tokens deleted'}
