@@ -20,3 +20,7 @@ from .jwt_config import (
     custom_set_cookie,
     auth_required
 )
+
+from .link_feats import (
+    create_short_link
+)
