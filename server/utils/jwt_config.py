@@ -8,6 +8,11 @@ from datetime import (
     timedelta
 )
 
+from fastapi import (
+    Response,
+    Request
+)
+
 from dotenv import load_dotenv
 
 from . import (
@@ -23,9 +28,9 @@ from . import (
 load_dotenv()
 
 
-ACCESS_EXPIRE = getenv('ACCESS_EXPIRE', 7)
-REFRESH_EXPIRE = getenv('REFRESH_EXPIRE', 30)
-ALGORITHM = getenv('ALGORITHM', 'SH256')
+ACCESS_EXPIRE = getenv('ACCESS_EXPIRE', 1)
+REFRESH_EXPIRE = getenv('REFRESH_EXPIRE', 7)
+ALGORITHM = getenv('ALGORITHM', 'HS256')
 JWT_SECRET_KEY = getenv('JWT_SECRET_KEY')
 
 
@@ -33,7 +38,7 @@ outh2_scheme = OAuth2PasswordBearer(tokenUrl='/token')
 
 
 async def create_access_token(user_data: dict) -> str:
-    exp = datetime.now(timezone.utc) + timedelta(ACCESS_EXPIRE)
+    exp = datetime.now(timezone.utc) + timedelta(hours=int(ACCESS_EXPIRE))
     return jwt.encode(
         {
             'sub': user_data.get('id'),
@@ -47,7 +52,7 @@ async def create_access_token(user_data: dict) -> str:
 
 
 async def create_refresh_token(user_data: dict) -> str:
-    exp = datetime.now(timezone.utc) + timedelta(REFRESH_EXPIRE)
+    exp = datetime.now(timezone.utc) + timedelta(days=int(REFRESH_EXPIRE))
     return jwt.encode(
         {
             'sub': user_data.get('id'),
@@ -60,20 +65,20 @@ async def create_refresh_token(user_data: dict) -> str:
     )
 
 
-async def refresh_access_token(token: str = Depends(outh2_scheme)):
+async def refresh_access_token(refresh: str):
     try:
-        if token:
-            if token.get('type') != 'refresh':
+        if refresh:
+            payload = jwt.decode(
+                refresh,
+                JWT_SECRET_KEY,
+                algorithms=[ALGORITHM]
+            )
+
+            if payload.get('type') != 'refresh':
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail='invalid token type'
                 )
-
-            payload = jwt.decode(
-                token,
-                JWT_SECRET_KEY,
-                algorithms=[ALGORITHM]
-            )
 
             return await create_access_token(payload.get('user_data'))
 
@@ -87,3 +92,31 @@ async def refresh_access_token(token: str = Depends(outh2_scheme)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='invalid token'
         )
+
+
+async def custom_set_cookie(
+    response: Response, 
+    access_token: str, 
+    refresh_token: str) -> None:
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=3600,
+        path="/",
+    )
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=604800,
+        path='/auth/refresh'
+    )
+
+

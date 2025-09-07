@@ -1,5 +1,19 @@
+from passlib.context import CryptContext
+
+from fastapi import (
+    status,
+    HTTPException
+)
+
 from . import (
-    BaseModel
+    BaseModel,
+    field_validator
+)
+
+from ..db import (
+    User, 
+    db_manager, 
+    select
 )
 
 
@@ -10,4 +24,4 @@ class RegisterUserModel(BaseModel):
 
 class LoginUserModel(BaseModel):
     name: str
-    password: str 
+    password: str

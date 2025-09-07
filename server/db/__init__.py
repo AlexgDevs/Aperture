@@ -4,6 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+from sqlalchemy import select 
+
 class Base(DeclarativeBase):
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -49,5 +51,6 @@ class DBManager:
 db_manager = DBManager()
 
 from .models import (
-    User
+    User,
+    Link
 )

@@ -10,9 +10,8 @@ from . import (
 
 class User(Base):
     __tablename__='users'
-    tg_id: Mapped[int]
     name: Mapped[str] = mapped_column(default='guest')
-    role: Mapped[Literal['guest', 'admin', 'moderator']]
+    role: Mapped[Literal['guest', 'admin', 'moderator']] = mapped_column(default='guest')
     password: Mapped[str]
 
-    links: Mapped[List['Link']]  = relationship('Link', back_populates='user')
+    links: Mapped[List['Link']] = relationship('Link', back_populates='user')
