@@ -2,7 +2,8 @@ from . import (
     APIRouter,
     status,
     HTTPException,
-    Depends)
+    Depends,
+    RedirectResponse)
 
 from ..schemas import (
     CreateLinkModel,
@@ -15,7 +16,8 @@ from ..db import (
     Link,
     User,
     select,
-    joinedload
+    joinedload,
+    DBHelper
     )
 
 
@@ -42,7 +44,8 @@ async def short_link(
 
     session.add(Link(**link_data))
     return {'status': 'created', 
-            'short_link': f"http://127.0.0.1:8000/links/{link_data.get('short_link')}"
+            'short_link': f"http://127.0.0.1:8000/links/{link_data.get('short_link')}",
+            'fast_short_link': f"http://127.0.0.1:8000/links/fast/{link_data.get('short_link')}"
             }
 
 
@@ -55,17 +58,20 @@ async def get_short_link(
     user: dict = Depends(auth_required),
     session: AsyncSession = Depends(db_manager.get_session)):
 
-    link = await session.scalar(
-        select(Link)
-        .where(
-            Link.user_id == user.get('id'),
-            Link.short_link == short)
-    )
-
-    if not link:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='link not found'
-        )
-
+    link = await DBHelper.get_link(user.get('id'), short, session)
     return link
+
+
+@link_app.get('/fast/{short}',
+        summary='redicrect by orig link',
+        description='enpoind for redicrect orig link by short')
+async def get_short_link(
+    short: str,
+    user: dict = Depends(auth_required),
+    session: AsyncSession = Depends(db_manager.get_session)):
+
+    link = await DBHelper.get_link(user.get('id'), short, session)
+    return RedirectResponse(
+        url=link.original_link,
+        status_code=status.HTTP_302_FOUND
+    )
