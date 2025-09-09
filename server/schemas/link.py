@@ -29,6 +29,7 @@ class LinkResponse(BaseModel):
     original_link: str
     short_link: str
     user_id: int
+    unest_cache: bool | None = None
 
     class Config:
         from_attributes = True
