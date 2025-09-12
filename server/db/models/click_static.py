@@ -4,7 +4,7 @@ from .. import Base
 
 from . import Mapped, mapped_column
 
-from sqlalchemy import String, DateTime, Text, Boolean, JSON
+from sqlalchemy import String, Boolean
 
 class ClickStatistics(Base):
     __tablename__ = 'click_statistics'

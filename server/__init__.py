@@ -2,7 +2,7 @@ from datetime import time
 
 import logging
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 
 from .db import db_manager
 
@@ -14,6 +14,8 @@ from .routers import (
     link_app,
     auth_app
 )
+
+API_URL='http://localhost:8000'
 
 app = FastAPI()
 

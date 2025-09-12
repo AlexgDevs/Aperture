@@ -19,7 +19,6 @@ from ..utils import (
     create_access_token,
     refresh_access_token,
     custom_set_cookie,
-    auth_required
 )
 
 from ..db import (

@@ -36,27 +36,34 @@ class DBManager:
             self.engine
         )
 
+
     async def up(self):
         async with self.engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+
 
     async def drop(self):
         async with self.engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
 
+
     async def migrate(self):
         await self.drop()
         await self.up()
+
 
     async def get_session(self):
         async with self.Session() as session:
             yield session
 
+
     async def get_session_begin(self):
         async with self.Session.begin() as session:
             yield session
 
+
 db_manager = DBManager()
+
 
 class DBHelper:
     @staticmethod

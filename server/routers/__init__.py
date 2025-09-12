@@ -10,4 +10,5 @@ from fastapi import (
 from fastapi.responses import RedirectResponse
 
 from .links import link_app
+
 from .auth import auth_app

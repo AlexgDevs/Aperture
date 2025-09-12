@@ -28,14 +28,12 @@ from ..db import (
     DBHelper
     )
 
-
 from ..utils import(
     auth_required,
     create_short_link,
 )
 
 load_dotenv()
-
 
 link_app = APIRouter(prefix='/links', tags=['Links'])
 redis = from_url(getenv('REDIS_URL'), decode_responses=True)
@@ -106,6 +104,7 @@ async def get_short_link(
 
     await redis.setex(f'short:{short}', 86400, json.dumps(link_data_for_cahce))
     return link
+
 
 @link_app.get('/f/{short}',
         summary='redicrect by orig link',

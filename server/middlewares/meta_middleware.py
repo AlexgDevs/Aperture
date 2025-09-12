@@ -1,4 +1,4 @@
-from fastapi import Request, Response
+from fastapi import Request
 
 def register_middlewares(app):
     @app.middleware("http")
@@ -29,7 +29,6 @@ def register_middlewares(app):
                 endpoint_type,
                 request_data
             )
-
 
         return response
 
