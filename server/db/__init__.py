@@ -60,11 +60,10 @@ db_manager = DBManager()
 
 class DBHelper:
     @staticmethod
-    async def get_link(user_id: int, short: str, session: AsyncSession):
+    async def get_link(short: str, session: AsyncSession):
         link = await session.scalar(
             select(Link)
             .where(
-                Link.user_id == user_id,
                 Link.short_link == short)
         )
 
@@ -77,7 +76,14 @@ class DBHelper:
         return link
 
 
+    @staticmethod
+    async def add_metric(metric_data: dict):
+        async with db_manager.Session.begin() as session:
+            session.add(ClickStatistics(**metric_data))
+
+
 from .models import (
     User,
-    Link
+    Link,
+    ClickStatistics
 )

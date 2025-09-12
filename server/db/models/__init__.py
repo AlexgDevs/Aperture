@@ -10,3 +10,4 @@ from sqlalchemy.orm import (
 
 from .user import User
 from .link import Link
+from .click_static import ClickStatistics

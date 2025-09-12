@@ -1,4 +1,9 @@
+from os import getenv
+
 import json
+
+from dotenv import load_dotenv
+
 from redis.asyncio import from_url
 
 from . import (
@@ -29,8 +34,11 @@ from ..utils import(
     create_short_link,
 )
 
+load_dotenv()
+
+
 link_app = APIRouter(prefix='/links', tags=['Links'])
-redis = from_url('redis://localhost:6379', decode_responses=True)
+redis = from_url(getenv('REDIS_URL'), decode_responses=True)
 
 
 @link_app.post('/',
@@ -59,7 +67,7 @@ async def short_link(
     session.add(new_link)
     
     short_link = f'http://127.0.0.1:8000/links/{new_link.short_link}'
-    fast_short_link = f'http://127.0.0.1:8000/links/fast/{new_link.short_link}'
+    fast_short_link = f'http://127.0.0.1:8000/links/f/{new_link.short_link}'
     await session.flush()
 
     link_data_for_cache = {
@@ -81,7 +89,6 @@ async def short_link(
         description='enpoind for getting orig link by short')
 async def get_short_link(
     short: str,
-    user: dict = Depends(auth_required),
     session: AsyncSession = Depends(db_manager.get_session)):
 
     cache_link = await redis.get(f'short:{short}')
@@ -90,7 +97,7 @@ async def get_short_link(
         cache_link_data['unest_cache'] = True
         return LinkResponse.model_validate(cache_link_data)
 
-    link = await DBHelper.get_link(user.get('id'), short, session)
+    link = await DBHelper.get_link(short, session)
     link_data_for_cahce = {
         'original_link': link.original_link,
         'short_link': link.short_link,
@@ -100,12 +107,11 @@ async def get_short_link(
     await redis.setex(f'short:{short}', 86400, json.dumps(link_data_for_cahce))
     return link
 
-@link_app.get('/fast/{short}',
+@link_app.get('/f/{short}',
         summary='redicrect by orig link',
         description='enpoind for redicrect orig link by short')
 async def get_short_link(
     short: str,
-    user: dict = Depends(auth_required),
     session: AsyncSession = Depends(db_manager.get_session)):
 
     cache_link = await redis.get(f'fast_link:{short}')
@@ -115,7 +121,7 @@ async def get_short_link(
             status_code=status.HTTP_302_FOUND
         )
 
-    link = await DBHelper.get_link(user.get('id'), short, session)
+    link = await DBHelper.get_link(short, session)
     await redis.setex(f'fast_link:{short}', 86400, link.original_link)
     return RedirectResponse(
         url=link.original_link,

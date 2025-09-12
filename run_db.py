@@ -7,3 +7,8 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
+# a = '/links/name'
+# b = '/links/f/name'
+
+# print(f'{a.split('/')}|{b.split('/')}')
