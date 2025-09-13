@@ -1,10 +1,10 @@
 from os import getenv
-
 from functools import wraps
+from dotenv import load_dotenv
 
 from datetime import (
-    datetime, 
-    timezone, 
+    datetime,
+    timezone,
     timedelta
 )
 
@@ -12,8 +12,6 @@ from fastapi import (
     Response,
     Request
 )
-
-from dotenv import load_dotenv
 
 from . import (
     jwt,
@@ -24,9 +22,7 @@ from . import (
     status
 )
 
-
 load_dotenv()
-
 
 ACCESS_EXPIRE = getenv('ACCESS_EXPIRE', 1)
 REFRESH_EXPIRE = getenv('REFRESH_EXPIRE', 7)
@@ -95,9 +91,9 @@ async def refresh_access_token(refresh: str):
 
 
 async def custom_set_cookie(
-    response: Response, 
-    access_token: str, 
-    refresh_token: str) -> None:
+        response: Response,
+        access_token: str,
+        refresh_token: str) -> None:
 
     response.set_cookie(
         key="access_token",
@@ -128,26 +124,27 @@ async def get_current_user(request: Request):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Not authenticated"
             )
-        
+
         payload = jwt.decode(
             token,
             JWT_SECRET_KEY,
             algorithms=[ALGORITHM]
         )
-        
+
         if payload.get('type') != 'access':
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token type"
             )
-        
+
         return payload.get('user_data')
-    
+
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
         )
+
 
 async def auth_required(request: Request):
     return await get_current_user(request)

@@ -8,4 +8,8 @@ class DBSettings:
         self.test_db_url = test_db_url
         self.echo = echo
 
-db_settings = DBSettings(db_url=getenv('DB_URL'), test_db_url=getenv('TEST_DB_URL'), echo=True)
+db_settings = DBSettings(
+    db_url=getenv('DB_URL'), 
+    test_db_url=getenv('TEST_DB_URL'), 
+    echo=True
+    )

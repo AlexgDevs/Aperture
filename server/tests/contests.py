@@ -1,5 +1,4 @@
 from aiohttp import ClientSession
-
 from pytest_asyncio import fixture
 
 from .. import API_URL

@@ -8,7 +8,8 @@ from fastapi import (
 )
 
 from pydantic import (
-    BaseModel, 
+    BaseModel,
+    Field,
     field_validator)
 
 from .user import (

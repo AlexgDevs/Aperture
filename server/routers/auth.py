@@ -77,7 +77,7 @@ async def register(
 async def login(
         response: Response,
         user: LoginUserModel,
-        session: AsyncSession = Depends(db_manager.get_session)):
+        session = Depends(db_manager.get_session)):
 
     user_obj = await session.scalar(
         select(User)

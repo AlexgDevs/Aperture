@@ -4,7 +4,8 @@ from . import (
     BaseModel,
     field_validator,
     status,
-    HTTPException
+    HTTPException,
+    Field
 )
 
 
@@ -27,7 +28,7 @@ class CreateLinkModel(BaseModel):
 
 class LinkResponse(BaseModel):
     original_link: str
-    short_link: str
+    short_link: str = Field(..., min_length=3, max_length=12)
     user_id: int
     unest_cache: bool | None = None
 

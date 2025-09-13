@@ -2,12 +2,6 @@ from pytest import mark
 
 from .contests import async_client
 
-from ..db import (
-    db_manager,
-    Link,
-    select
-)
-
 
 @mark.asyncio
 async def test_register_success(async_client):
