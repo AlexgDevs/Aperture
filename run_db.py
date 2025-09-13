@@ -1,14 +1,8 @@
 import asyncio
-
 from server import db_manager
 
 async def main():
-    await db_manager.migrate()
+    await db_manager.up()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())
-
-# a = '/links/name'
-# b = '/links/f/name'
-
-# print(f'{a.split('/')}|{b.split('/')}')

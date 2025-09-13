@@ -4,6 +4,7 @@
 1. Установить окружение `python -m venv env`
 2. Установить в окружение `poetry`
 3. Прописать `poetry install`
+4. создайте файл `.env` и запишите туда валидные значения для тестирования (посмотреть можно в `.env.example`) 
 ### 1.1 Запуски основных сервисов
 1. FastAPI сервер `uvicorn run_server:app |--reload| -> для дебага`
 2. Celery `celery -A celery_run worker --pool=solo --loglevel=info`
